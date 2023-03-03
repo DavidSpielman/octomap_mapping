@@ -181,6 +181,17 @@ OctomapServer::OctomapServer(const rclcpp::NodeOptions & node_options)
   prob_hit_desc.floating_point_range.push_back(prob_hit_range);
   const double prob_hit = declare_parameter("sensor_model.hit", 0.7, prob_hit_desc);
 
+//EDITING HERE
+  rcl_interfaces::msg::ParameterDescriptor occupancy_threshold_desc;
+  occupancy_threshold_desc.description =
+    "Adjust confidence when dynamically building a map";
+  rcl_interfaces::msg::FloatingPointRange occupancy_threshold_range;
+  occupancy_threshold_range.from_value = 0.0;
+  occupancy_threshold_range.to_value = 1.0;
+  occupancy_threshold_desc.floating_point_range.push_back(occupancy_threshold_range);
+  const double occupancy_threshold = declare_parameter("occupancy_threshold", 0.7, occupancy_threshold_desc);
+//EDITING HERE
+
   rcl_interfaces::msg::ParameterDescriptor prob_miss_desc;
   prob_miss_desc.description =
     "Probabilities for misses in the sensor model when dynamically building a map";
@@ -253,6 +264,9 @@ OctomapServer::OctomapServer(const rclcpp::NodeOptions & node_options)
   octree_->setProbMiss(prob_miss);
   octree_->setClampingThresMin(thres_min);
   octree_->setClampingThresMax(thres_max);
+  //EDITING HERE
+  octree_->setOccupancyThres(occupancy_threshold);
+  //EDITING HERE
   tree_depth_ = octree_->getTreeDepth();
   max_tree_depth_ = tree_depth_;
   {
@@ -1384,6 +1398,11 @@ rcl_interfaces::msg::SetParametersResult OctomapServer::onParameter(
   double sensor_model_hit{get_parameter("sensor_model.hit").as_double()};
   update_param(parameters, "sensor_model.hit", sensor_model_hit);
   octree_->setProbHit(sensor_model_hit);
+//EDITING HERE
+  double occupancy_threshold{get_parameter("occupancy_threshold").as_double()};
+  update_param(parameters, "occupancy_threshold", occupancy_threshold);
+  octree_->setOccupancyThres(occupancy_threshold);
+//EDITING HERE
   double sensor_model_miss{get_parameter("sensor_model.miss").as_double()};
   update_param(parameters, "sensor_model.miss", sensor_model_miss);
   octree_->setProbMiss(sensor_model_miss);
